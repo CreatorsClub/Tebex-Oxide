@@ -372,6 +372,7 @@ namespace Oxide.Plugins
 
         private static readonly string BASE_URL = "https://plugin.buycraft.net";
         private bool buyCommandReady;
+        private float checkInterval;
         private SortedDictionary<int, Category> listings;
         private bool logEvents;
         private string storeCurrency;
@@ -443,6 +444,7 @@ namespace Oxide.Plugins
             Config["Debug", "Log Actions"] = debugLogActions = GetConfig("Debug", "Log Actions", true);
             Config["Debug", "Log Stack Traces"] = debugLogStackTraces = GetConfig("Debug", "Log Stack Traces", true);
             Config["Debug", "Log Response Errors"] = debugLogResponseErrors = GetConfig("Debug", "Log Response Errors", true);
+            Config["Check Interval"] = checkInterval = GetConfig("Check Interval", "225");
             Config["Secret key of your shop (do not tell it anyone)"] = secretKey = GetConfig("Secret key of your shop (do not tell it anyone)", "");
 
             SaveConfig();
@@ -637,7 +639,9 @@ namespace Oxide.Plugins
 
             webrequest.Enqueue($"{BASE_URL}/queue", "", (code, response) =>
             {
-                float secondsUntilNextCheck = 225f;
+                //Sets secondsUntilNextCheck to 225 if config is set lower.
+                float secondsUntilNextCheck = float.Parse(checkInterval) >= 225f ? float.Parse(checkInterval) : 225f;
+                
 
                 if (response != null)
                 {
